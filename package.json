@@ -1,0 +1,7 @@
+{
+  "name": "notion-diff-checker",
+  "version": "0.1.0",
+  "main": "index.js",
+  "author": "Enrico Schifano <enrs@bendingspoons.com>",
+  "license": "MIT"
+}
