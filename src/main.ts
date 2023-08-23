@@ -1,12 +1,52 @@
-import { launch } from 'puppeteer';
+import { app, BrowserWindow, BrowserView } from 'electron';
+import { join } from 'path';
 
-const main = async () => {
-  const browser = await launch();
-  const page = await browser.newPage();
-  await page.goto('https://google.com');
-  await page.pdf({path: 'google.pdf'});
+const createWindow = () => {
+  const mainWindow = new BrowserWindow({
+    width: 100,
+    height: 200,
+    webPreferences: {
+      preload: join(__dirname, 'preload.js')
+    }
+  });
 
-  await browser.close();
+  const headerView = new BrowserView();
+  const contentView = new BrowserView();
+  mainWindow.addBrowserView(headerView);
+  mainWindow.addBrowserView(contentView);
+  headerView.setBounds({
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+  });
+  headerView.setAutoResize({
+    horizontal: true,
+  });
+  headerView.webContents.loadURL(`file:///${join(__dirname, 'headerView.html')}`);
+  contentView.setBounds({
+    x: 0,
+    y: 100,
+    width: 100,
+    height: 100,
+  });
+  contentView.setAutoResize({
+    horizontal: true,
+    height: true,
+  });
+  contentView.webContents.loadURL('https://www.notion.so');
+  mainWindow.maximize();
+  mainWindow.show();
 };
 
-await main();
+app.whenReady().then(() => {
+  createWindow();
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});
